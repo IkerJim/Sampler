@@ -29,5 +29,7 @@ private:
     // access the processor object that created it.
     SamplerAudioProcessor& audioProcessor;
 
+    juce::TextButton openButton;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SamplerAudioProcessorEditor)
 };

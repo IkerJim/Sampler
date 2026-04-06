@@ -53,7 +53,13 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    void openButtonClicked();
+
 private:
     //==============================================================================
+    std::unique_ptr<juce::FileChooser> chooser;
+
+    juce::AudioFormatManager formatManager;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SamplerAudioProcessor)
 };

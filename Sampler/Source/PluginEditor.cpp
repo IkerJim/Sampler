@@ -15,6 +15,9 @@ SamplerAudioProcessorEditor::SamplerAudioProcessorEditor (SamplerAudioProcessor&
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
+    addAndMakeVisible(openButton);
+    openButton.onClick = [this] {audioProcessor.openButtonClicked(); };
+
     setSize (400, 300);
 }
 
@@ -37,4 +40,7 @@ void SamplerAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+    auto bounds = getLocalBounds().reduced(10);
+
+    openButton.setBounds(bounds.removeFromTop(25).removeFromLeft(50));
 }

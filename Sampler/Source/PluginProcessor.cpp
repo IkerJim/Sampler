@@ -22,6 +22,7 @@ SamplerAudioProcessor::SamplerAudioProcessor()
                        )
 #endif
 {
+    formatManager.registerBasicFormats();
 }
 
 SamplerAudioProcessor::~SamplerAudioProcessor()
@@ -188,4 +189,23 @@ void SamplerAudioProcessor::setStateInformation (const void* data, int sizeInByt
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new SamplerAudioProcessor();
+}
+
+void SamplerAudioProcessor::openButtonClicked()
+{
+    chooser = std::make_unique<juce::FileChooser>("Select a file", 
+                                                  juce::File::getSpecialLocation(juce::File::userHomeDirectory), 
+                                                  "*.wav");
+
+    auto chooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
+
+    chooser->launchAsync(chooserFlags, [this](const juce::FileChooser& fc)
+        {
+            auto file = fc.getResult();
+
+            if (file == juce::File())
+                return;
+
+            std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(file));
+        });
 }
