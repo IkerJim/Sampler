@@ -96,6 +96,9 @@ void SamplerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    synth.setCurrentPlaybackSampleRate(sampleRate);
+
+    synth.addVoice(new Voice());
 }
 
 void SamplerAudioProcessor::releaseResources()
@@ -151,12 +154,7 @@ void SamplerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
-
-        // ..do something to the data...
-    }
+    synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 }
 
 //==============================================================================
@@ -207,5 +205,10 @@ void SamplerAudioProcessor::openButtonClicked()
                 return;
 
             std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(file));
+
+            if (reader.get() != nullptr)
+            {
+                synth.addSound(new Sound(*reader, 60, 10.0));
+            }
         });
 }
