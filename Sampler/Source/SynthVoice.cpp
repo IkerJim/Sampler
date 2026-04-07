@@ -44,8 +44,7 @@ void Voice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int startS
 {
     if (auto* playingSound = dynamic_cast<Sound*>(getCurrentlyPlayingSound().get()))
     {
-        auto data = playingSound->data;
-
+        auto& data = playingSound->data;
         const float* inL = data.getReadPointer(0);
         const float* inR = data.getNumChannels() > 1 ? data.getReadPointer(1) : inL;
 
@@ -55,10 +54,11 @@ void Voice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int startS
         while (--numSamples >= 0)
         {
             int pos = (int)sourceSamplePosition;
-            float frac = sourceSamplePosition - (float)pos;
+            float alpha = (float)(sourceSamplePosition - pos);
+            float invAlpha = 1.0f - alpha;
 
-            float l = inL[pos] + frac * (inL[pos + 1] - inL[pos]);
-            float r = inR[pos] + frac * (inR[pos + 1] - inR[pos]);
+            float l = inL[pos] * invAlpha + inL[pos + 1] * alpha;
+            float r = inR[pos] * invAlpha + inR[pos + 1] * alpha;
 
             if (outR != nullptr)
             {
@@ -71,9 +71,10 @@ void Voice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int startS
             }
 
             sourceSamplePosition += pitchRatio;
+
             if (sourceSamplePosition > playingSound->length)
             {
-                stopNote(0.0f, true);
+                stopNote(0.0f, false);
                 break;
             }
         }
