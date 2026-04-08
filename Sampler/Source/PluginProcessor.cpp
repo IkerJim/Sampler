@@ -208,7 +208,7 @@ void SamplerAudioProcessor::openButtonClicked()
 
             if (reader.get() != nullptr)
             {
-                synth.addSound(new Sound(*reader, 60, 10.0));
+                synth.changeSound(new Sound(*reader, 60, 10.0));
             }
         });
 }
