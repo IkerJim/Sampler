@@ -10,6 +10,17 @@
 
 #include "Synth.h"
 
+Synth::Synth():
+    Thread("")
+{
+    startThread();
+}
+
+Synth::~Synth()
+{
+    stopThread(1000);
+}
+
 void Synth::noteOn(int midiChannel,
                    int midiNoteNumber,
                    float velocity)
@@ -31,4 +42,23 @@ void Synth::changeSound(const juce::SynthesiserSound::Ptr& newSound)
     }
 
     sounds.add(newSound);
+}
+
+void Synth::run()
+{
+    while (!threadShouldExit())
+    {
+        checkForBuffersToFree();
+        wait(500);
+    }
+}
+
+void Synth::checkForBuffersToFree()
+{
+    for (int i = sounds.size(); --i >= 0;)
+    {
+        juce::SynthesiserSound::Ptr sound(sounds.getUnchecked(i));
+        if (sound->getReferenceCount() <= 2)
+            sounds.remove(i);
+    }
 }

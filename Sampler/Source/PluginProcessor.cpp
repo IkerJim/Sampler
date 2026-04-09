@@ -155,6 +155,7 @@ void SamplerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+    DBG(synth.getNumSounds());
 }
 
 //==============================================================================
