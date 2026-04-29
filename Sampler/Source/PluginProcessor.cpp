@@ -155,8 +155,11 @@ void SamplerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
+    
+    getParameters();
+    
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
-    DBG(synth.getNumSounds());
+    
 }
 
 //==============================================================================
@@ -219,6 +222,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout SamplerAudioProcessor::setLa
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
+    auto position = std::make_unique<juce::AudioParameterFloat>(
+        "POSITION",
+        "Position",
+        juce::NormalisableRange<float>(0.0f, 100.0f),
+        0.0f,
+        juce::AudioParameterFloatAttributes().withStringFromValueFunction([](float value, int) { return juce::String(int(value)) + " %"; })
+    );
     auto speed = std::make_unique<juce::AudioParameterFloat>(
         "SPEED",
         "Speed",
@@ -226,6 +236,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SamplerAudioProcessor::setLa
         1.0f
     );
 
+    layout.add(std::move(position));
     layout.add(std::move(speed));
 
     return layout;
@@ -233,5 +244,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout SamplerAudioProcessor::setLa
 
 void SamplerAudioProcessor::setParameters()
 {
+    positionParameter = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter("POSITION"));
     speedParameter = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter("SPEED"));
+}
+
+void SamplerAudioProcessor::getParameters()
+{
+    DBG(positionParameter->get());
+    DBG(speedParameter->get());
 }

@@ -16,13 +16,18 @@ SamplerAudioProcessorEditor::SamplerAudioProcessorEditor (SamplerAudioProcessor&
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     addAndMakeVisible(openButton);
+    addAndMakeVisible(positionSlider);
     addAndMakeVisible(speedSlider);
 
     openButton.onClick = [this] {audioProcessor.openButtonClicked(); };
 
+    positionSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    positionSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 25);
+
     speedSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     speedSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 25);
 
+    positionAttachment = std::make_unique<SliderAttachment>(apvts, "POSITION", positionSlider);
     speedAttachment = std::make_unique<SliderAttachment>(apvts, "SPEED", speedSlider);
 
     setSize (400, 300);
@@ -49,6 +54,14 @@ void SamplerAudioProcessorEditor::resized()
     // subcomponents in your editor..
     auto bounds = getLocalBounds().reduced(10);
 
-    openButton.setBounds(bounds.removeFromTop(25).removeFromLeft(50));
-    speedSlider.setBounds(bounds.withSizeKeepingCentre(85, 85));
+    juce::FlexBox fb;
+    fb.flexWrap = juce::FlexBox::Wrap::wrap;
+    fb.flexDirection = juce::FlexBox::Direction::row;
+    fb.alignContent = juce::FlexBox::AlignContent::center;
+    fb.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+    fb.items.add(juce::FlexItem(positionSlider).withWidth(85).withHeight(85));
+    fb.items.add(juce::FlexItem(speedSlider).withWidth(85).withHeight(85));
+    fb.performLayout(bounds);
+
+    openButton.setBounds(10, 10, 50, 25);
 }

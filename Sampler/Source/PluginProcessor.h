@@ -66,9 +66,11 @@ private:
 
     Synth synth;
     juce::AudioProcessorValueTreeState apvts;
+    juce::AudioParameterFloat* positionParameter;
     juce::AudioParameterFloat* speedParameter;
     juce::AudioProcessorValueTreeState::ParameterLayout setLayout();
     void setParameters();
+    void getParameters();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SamplerAudioProcessor)
 };

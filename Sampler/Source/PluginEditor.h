@@ -31,8 +31,10 @@ private:
 
     juce::TextButton openButton;
     juce::Slider speedSlider;
+    juce::Slider positionSlider;
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
     std::unique_ptr<SliderAttachment> speedAttachment;
+    std::unique_ptr<SliderAttachment> positionAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SamplerAudioProcessorEditor)
 };
