@@ -24,6 +24,6 @@ public:
     void renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int startSample, int numSamples) override;
 
 private:
-    double sourceSamplePosition;
-    double pitchRatio;
+    float samplePosition = 0.0f;
+    float pitchRatio = 1.0f;
 };

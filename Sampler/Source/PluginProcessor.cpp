@@ -19,7 +19,8 @@ SamplerAudioProcessor::SamplerAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
+    apvts(*this, nullptr, "PARAMETERS", setLayout())
 #endif
 {
     formatManager.registerBasicFormats();
@@ -166,7 +167,7 @@ bool SamplerAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* SamplerAudioProcessor::createEditor()
 {
-    return new SamplerAudioProcessorEditor (*this);
+    return new SamplerAudioProcessorEditor (*this, apvts);
 }
 
 //==============================================================================
@@ -209,7 +210,28 @@ void SamplerAudioProcessor::openButtonClicked()
 
             if (reader.get() != nullptr)
             {
-                synth.changeSound(new Sound(*reader, 60, 10.0));
+                synth.changeSound(new Sound(*reader, 10.0f));
             }
         });
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout SamplerAudioProcessor::setLayout()
+{
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+
+    auto speed = std::make_unique<juce::AudioParameterFloat>(
+        "SPEED",
+        "Speed",
+        juce::NormalisableRange<float>(-1.0f, 1.0f),
+        1.0f
+    );
+
+    layout.add(std::move(speed));
+
+    return layout;
+}
+
+void SamplerAudioProcessor::setParameters()
+{
+    speedParameter = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter("SPEED"));
 }

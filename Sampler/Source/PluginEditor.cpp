@@ -10,13 +10,20 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-SamplerAudioProcessorEditor::SamplerAudioProcessorEditor (SamplerAudioProcessor& p)
+SamplerAudioProcessorEditor::SamplerAudioProcessorEditor (SamplerAudioProcessor& p, juce::AudioProcessorValueTreeState& apvts)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     addAndMakeVisible(openButton);
+    addAndMakeVisible(speedSlider);
+
     openButton.onClick = [this] {audioProcessor.openButtonClicked(); };
+
+    speedSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    speedSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 25);
+
+    speedAttachment = std::make_unique<SliderAttachment>(apvts, "SPEED", speedSlider);
 
     setSize (400, 300);
 }
@@ -43,4 +50,5 @@ void SamplerAudioProcessorEditor::resized()
     auto bounds = getLocalBounds().reduced(10);
 
     openButton.setBounds(bounds.removeFromTop(25).removeFromLeft(50));
+    speedSlider.setBounds(bounds.withSizeKeepingCentre(85, 85));
 }

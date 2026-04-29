@@ -17,11 +17,11 @@ bool Voice::canPlaySound(juce::SynthesiserSound* sound)
 
 void Voice::startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound* sound, int currentPitchWheelPosition)
 {
-    if (auto* s = dynamic_cast<Sound*>(sound))
+    if (auto* currentSound = dynamic_cast<Sound*>(sound))
     {
-        pitchRatio = std::pow(2.0, (double)(midiNoteNumber - s->midiRootNote) / 12.0) * s->sourceSampleRate / getSampleRate();
-
-        sourceSamplePosition = 0.0;
+        pitchRatio = currentSound->sampleRate / getSampleRate() *
+            std::pow(2.0f, static_cast<float>(midiNoteNumber - 60) / 12.0f);
+        samplePosition = 0.0f;
     }
 }
 
@@ -44,35 +44,38 @@ void Voice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int startS
 {
     if (auto* playingSound = dynamic_cast<Sound*>(getCurrentlyPlayingSound().get()))
     {
-        auto& data = playingSound->data;
-        const float* inL = data.getReadPointer(0);
-        const float* inR = data.getNumChannels() > 1 ? data.getReadPointer(1) : inL;
+        const float* leftInputChannel = playingSound->buffer.getReadPointer(0);
+        const float* rightInputChannel = playingSound->buffer.getNumChannels() > 1 ?
+            playingSound->buffer.getReadPointer(0) : leftInputChannel;
 
-        float* outL = outputBuffer.getWritePointer(0, startSample);
-        float* outR = outputBuffer.getNumChannels() > 1 ? outputBuffer.getWritePointer(1, startSample) : nullptr;
+        float* leftOutputChannel = outputBuffer.getWritePointer(0, startSample);
+        float* rightOutputChannel = outputBuffer.getNumChannels() > 1 ?
+            outputBuffer.getWritePointer(1, startSample) : nullptr;
 
         while (--numSamples >= 0)
         {
-            int pos = (int)sourceSamplePosition;
-            float alpha = (float)(sourceSamplePosition - pos);
-            float invAlpha = 1.0f - alpha;
+            int position = static_cast<int>(samplePosition);
+            float alpha = samplePosition - position;
 
-            float l = inL[pos] * invAlpha + inL[pos + 1] * alpha;
-            float r = inR[pos] * invAlpha + inR[pos + 1] * alpha;
+            float l = (alpha - 1) * leftInputChannel[position] + alpha * leftInputChannel[position + 1];
+            float r = (alpha - 1) * rightInputChannel[position] + alpha * rightInputChannel[position + 1];
 
-            if (outR != nullptr)
+            /*
+            ADSR
+            */
+
+            if (rightOutputChannel != nullptr)
             {
-                *outL++ += l;
-                *outR++ += r;
+                *leftOutputChannel++ += l;
+                *rightOutputChannel++ += r;
             }
             else
             {
-                *outL++ += (l + r) * 0.5;
+                *leftOutputChannel++ += (l + r) / 2;
             }
 
-            sourceSamplePosition += pitchRatio;
-
-            if (sourceSamplePosition > playingSound->length)
+            samplePosition += pitchRatio;
+            if (samplePosition > playingSound->length)
             {
                 stopNote(0.0f, false);
                 break;
