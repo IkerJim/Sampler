@@ -27,6 +27,14 @@ SamplerAudioProcessorEditor::SamplerAudioProcessorEditor (SamplerAudioProcessor&
     speedSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     speedSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 25);
 
+    positionLabel.setText("Start Position", juce::dontSendNotification);
+    positionLabel.setJustificationType(juce::Justification::centred);
+    positionLabel.attachToComponent(&positionSlider, false);
+
+    speedLabel.setText("Speed Ratio", juce::dontSendNotification);
+    speedLabel.setJustificationType(juce::Justification::centred);
+    speedLabel.attachToComponent(&speedSlider, false);
+
     positionAttachment = std::make_unique<SliderAttachment>(apvts, "POSITION", positionSlider);
     speedAttachment = std::make_unique<SliderAttachment>(apvts, "SPEED", speedSlider);
 
@@ -42,10 +50,6 @@ void SamplerAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-
-    g.setColour (juce::Colours::white);
-    g.setFont (juce::FontOptions (15.0f));
-    g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void SamplerAudioProcessorEditor::resized()

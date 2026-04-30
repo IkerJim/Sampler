@@ -234,7 +234,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SamplerAudioProcessor::setLa
     auto speed = std::make_unique<juce::AudioParameterFloat>(
         "SPEED",
         "Speed",
-        juce::NormalisableRange<float>(-1.0f, 1.0f),
+        juce::NormalisableRange<float>(-2.0f, 2.0f),
         1.0f
     );
 

@@ -32,6 +32,8 @@ private:
     juce::TextButton openButton;
     juce::Slider speedSlider;
     juce::Slider positionSlider;
+    juce::Label speedLabel;
+    juce::Label positionLabel;
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
     std::unique_ptr<SliderAttachment> speedAttachment;
     std::unique_ptr<SliderAttachment> positionAttachment;
