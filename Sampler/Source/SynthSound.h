@@ -28,6 +28,17 @@ public:
         }
     }
     
+    struct Parameters
+    {
+        float startPosition;
+        float speedRatio;
+    };
+
+    void setParameters(const Parameters& newParameters)
+    {
+        parameters = newParameters;
+    }
+
     bool appliesToNote(int midiNoteNumber) override;
     bool appliesToChannel(int midiChannel) override;
 
@@ -37,4 +48,5 @@ private:
     juce::AudioBuffer<float> buffer;
     int length;
     double sampleRate;
+    Parameters parameters;
 };

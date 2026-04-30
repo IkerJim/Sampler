@@ -70,7 +70,7 @@ private:
     juce::AudioParameterFloat* speedParameter;
     juce::AudioProcessorValueTreeState::ParameterLayout setLayout();
     void setParameters();
-    void getParameters();
+    void updateParameters();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SamplerAudioProcessor)
 };

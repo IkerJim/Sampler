@@ -23,6 +23,8 @@ SamplerAudioProcessor::SamplerAudioProcessor()
     apvts(*this, nullptr, "PARAMETERS", setLayout())
 #endif
 {
+    setParameters();
+    
     formatManager.registerBasicFormats();
 }
 
@@ -156,7 +158,7 @@ void SamplerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
     
-    getParameters();
+    updateParameters();
     
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
     
@@ -248,8 +250,13 @@ void SamplerAudioProcessor::setParameters()
     speedParameter = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter("SPEED"));
 }
 
-void SamplerAudioProcessor::getParameters()
+void SamplerAudioProcessor::updateParameters()
 {
-    DBG(positionParameter->get());
-    DBG(speedParameter->get());
+    Sound::Parameters soundParameters;
+    soundParameters.startPosition = positionParameter->get();
+    soundParameters.speedRatio = speedParameter->get();
+
+    for (size_t i = 0; i < synth.getNumSounds(); i++)
+        if (auto* sound = dynamic_cast<Sound*>(synth.getSound(i).get()))
+            sound->setParameters(soundParameters);
 }

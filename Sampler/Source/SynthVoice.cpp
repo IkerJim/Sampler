@@ -20,8 +20,9 @@ void Voice::startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound
     if (auto* currentSound = dynamic_cast<Sound*>(sound))
     {
         pitchRatio = currentSound->sampleRate / getSampleRate() *
-            std::pow(2.0f, static_cast<float>(midiNoteNumber - 60) / 12.0f);
-        samplePosition = 0.0f;
+            std::pow(2.0f, static_cast<float>(midiNoteNumber - 60) / 12.0f) *
+            currentSound->parameters.speedRatio;
+        samplePosition = static_cast<int>(currentSound->parameters.startPosition / 100 * currentSound->buffer.getNumSamples());
     }
 }
 
@@ -46,7 +47,7 @@ void Voice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int startS
     {
         const float* leftInputChannel = playingSound->buffer.getReadPointer(0);
         const float* rightInputChannel = playingSound->buffer.getNumChannels() > 1 ?
-            playingSound->buffer.getReadPointer(0) : leftInputChannel;
+            playingSound->buffer.getReadPointer(1) : leftInputChannel;
 
         float* leftOutputChannel = outputBuffer.getWritePointer(0, startSample);
         float* rightOutputChannel = outputBuffer.getNumChannels() > 1 ?
@@ -57,8 +58,8 @@ void Voice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int startS
             int position = static_cast<int>(samplePosition);
             float alpha = samplePosition - position;
 
-            float l = (alpha - 1) * leftInputChannel[position] + alpha * leftInputChannel[position + 1];
-            float r = (alpha - 1) * rightInputChannel[position] + alpha * rightInputChannel[position + 1];
+            float l = (1.0f - alpha) * leftInputChannel[position] + alpha * leftInputChannel[position + 1];
+            float r = (1.0f - alpha) * rightInputChannel[position] + alpha * rightInputChannel[position + 1];
 
             /*
             ADSR
@@ -75,7 +76,7 @@ void Voice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int startS
             }
 
             samplePosition += pitchRatio;
-            if (samplePosition > playingSound->length)
+            if (samplePosition < 0 || samplePosition > playingSound->length)
             {
                 stopNote(0.0f, false);
                 break;
